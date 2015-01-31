@@ -74,7 +74,7 @@ public class ListAccountsNodeModel extends NodeModel {
             else 
             	cells.add(new StringCell(""));
             cells.add(new StringCell(StringUtils.join(account.getPerms(), ",")));
-
+            
             outContainer.addRowToTable(new DefaultRow("Row" + i++, cells));
         }
         
