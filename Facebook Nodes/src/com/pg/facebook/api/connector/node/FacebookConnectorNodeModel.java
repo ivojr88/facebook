@@ -44,16 +44,12 @@ public class FacebookConnectorNodeModel extends NodeModel {
     	
     }
     
-   
-
     /**
      * {@inheritDoc}
      */
     @Override
     protected void reset() {
-        // TODO Code executed on reset.
-        // Models build during execute are cleared here.
-        // Also data handled in load/saveInternals will be erased here.
+        
     }
 
     @Override
@@ -90,7 +86,11 @@ public class FacebookConnectorNodeModel extends NodeModel {
     protected void validateSettings(final NodeSettingsRO settings)
             throws InvalidSettingsException {
             
-       
+       config = new FacebookConnectorConfiguration();
+       config.load(settings);
+       if ( config.getAccessToken() == null || config.getAccessToken().isEmpty() ) {
+    	   throw new InvalidSettingsException("User token required.");
+       }
 
     }
     
