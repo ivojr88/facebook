@@ -3,6 +3,7 @@ package com.pg.facebook.api.connector.node;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.lang.StringUtils;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
@@ -39,6 +40,10 @@ public class FacebookConnectorNodeModel extends NodeModel {
     @Override
     protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
     		throws Exception {
+    	
+    	if ( config == null ) {
+    		throw new InvalidSettingsException("Please configure node before execution");
+    	}
     	
     	return new PortObject[] { new FacebookApiConnectorPortObject(new FacebookApiConnectionPortObjectSpec(config)) };
     	
@@ -88,7 +93,7 @@ public class FacebookConnectorNodeModel extends NodeModel {
             
        config = new FacebookConnectorConfiguration();
        config.load(settings);
-       if ( config.getAccessToken() == null || config.getAccessToken().isEmpty() ) {
+       if ( config.getAccessToken() == null || StringUtils.isEmpty(config.getAccessToken()) ) {
     	   throw new InvalidSettingsException("User token required.");
        }
 
