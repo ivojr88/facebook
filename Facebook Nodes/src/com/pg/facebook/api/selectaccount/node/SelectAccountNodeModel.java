@@ -3,6 +3,7 @@ package com.pg.facebook.api.selectaccount.node;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.lang.StringUtils;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
@@ -14,6 +15,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
+import com.pg.facebook.api.connector.data.FacebookApiConnectionPortObjectSpec;
 import com.pg.facebook.api.connector.data.FacebookApiConnectorPortObject;
 
 /**
@@ -47,7 +49,9 @@ public class SelectAccountNodeModel extends NodeModel {
     		throw new Exception("Incorrect input port class type");
     	}
     	
-    	
+    	if ( config == null ) {
+    		throw new InvalidSettingsException("Please configure node before execution");
+    	}
     	
     	FacebookApiConnectorPortObject portObject = (FacebookApiConnectorPortObject)inObjects[0];
     	portObject.setObjectId(config.getAccountId());
@@ -64,13 +68,22 @@ public class SelectAccountNodeModel extends NodeModel {
      */
     @Override
     protected void reset() {
-        // TODO: generated method stub
+        
     }
 
    @Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
 		
+	   // Validate that API node is executed
+	   if ( inSpecs == null || inSpecs.length <= 0) {
+		   throw new InvalidSettingsException("Please connect to Facebook API Connector before configurating");
+	   }
+	   
+	   if (! (inSpecs[0] instanceof FacebookApiConnectionPortObjectSpec ) ) {
+		   throw new InvalidSettingsException("Please connect to Facebook API Connector before configurating");
+	   }
+	   
 	   return inSpecs;
 	}
 
@@ -101,7 +114,15 @@ public class SelectAccountNodeModel extends NodeModel {
     @Override
     protected void validateSettings(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-        // TODO: generated method stub
+    
+    	
+    	config = new FacebookSelectAccountConfiguration();
+    	config.load(settings);
+    	
+    	if ( StringUtils.isEmpty(config.getAccessToken()) ) {
+    		throw new InvalidSettingsException("Access Token is required");
+    	}
+    	
     }
     
     /**

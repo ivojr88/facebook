@@ -93,9 +93,18 @@ public class SelectAccountNodeDialog extends StandardNodeDialogPane {
 		
 	}
 	
+	
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings,
-			PortObjectSpec[] specs) throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs) throws NotConfigurableException {
+		
+		if (! (specs[0] instanceof FacebookApiConnectionPortObjectSpec ) ) {
+			throw new NotConfigurableException("Please connect to Facebook API Connector before configurating");
+		}
+		      
+		FacebookApiClient client = ((FacebookApiConnectionPortObjectSpec)specs[0]).getFacebookClient();
+		if ( client == null || !client.isConfigured() ) {
+			throw new NotConfigurableException("Please execute Facebook API Connector before configurating");
+		}
 		
 		config = new FacebookSelectAccountConfiguration();
 		config.load(settings);
