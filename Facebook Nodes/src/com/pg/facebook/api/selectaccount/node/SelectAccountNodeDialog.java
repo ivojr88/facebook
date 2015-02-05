@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
@@ -20,6 +19,7 @@ import org.knime.core.node.port.PortObjectSpec;
 
 import com.pg.facebook.api.FacebookApiClient;
 import com.pg.facebook.api.connector.data.FacebookApiConnectionPortObjectSpec;
+import com.pg.knime.node.SortedComboBoxModel;
 import com.pg.knime.node.StandardNodeDialogPane;
 import com.restfb.types.Account;
 
@@ -36,7 +36,7 @@ import com.restfb.types.Account;
  */
 public class SelectAccountNodeDialog extends StandardNodeDialogPane {
 
-	private DefaultComboBoxModel<String> accounts = new DefaultComboBoxModel<String>();
+	private SortedComboBoxModel<String> accounts = new SortedComboBoxModel<String>();
 	private Map<String, String[]> accountMap = new HashMap<String, String[]>();
 	
 	private JTextField txtAccountId = new JTextField();
@@ -53,14 +53,13 @@ public class SelectAccountNodeDialog extends StandardNodeDialogPane {
     	
     	JComboBox<String> cbxAccounts = new JComboBox<String>(accounts);
     	
-    	
     	addTab(
     		"Settings", 
     		buildStandardPanel(
     			new PanelBuilder()
     				.add("Accounts", cbxAccounts, btnListAccounts )
-    				.add("Account Id", txtAccountId )
-    				.add("Account Token", txtAccountAccessToken )
+    				//.add("Account Id", txtAccountId )
+    				//.add("Account Token", txtAccountAccessToken )
     				.build()
     		)
     	);
@@ -74,8 +73,12 @@ public class SelectAccountNodeDialog extends StandardNodeDialogPane {
 				String accountName = (String)accounts.getSelectedItem();
 				if ( accountName == null ) return;
 				if ( accountMap==null) return;
-				txtAccountId.setText(accountMap.get(accountName)[0]);
-				txtAccountAccessToken.setText(accountMap.get(accountName)[1]);
+				
+				if ( accountMap != null && accountMap.size() > 0 ) {
+					txtAccountId.setText(accountMap.get(accountName)[0]);
+					txtAccountAccessToken.setText(accountMap.get(accountName)[1]);
+				}
+				
 			}
 		});
     	
@@ -113,6 +116,9 @@ public class SelectAccountNodeDialog extends StandardNodeDialogPane {
 		txtAccountAccessToken.setText(config.getAccessToken());
 		if ( config.getAccountName() != null && !config.getAccountName().isEmpty() && accounts.getSize() == 0)
 			accounts.addElement(config.getAccountName());
+		else {
+			accounts.addElement("                    "); // Force expansion
+		}
 		
 		// Create Button Action Handler:
 		if ( specs[0] instanceof FacebookApiConnectionPortObjectSpec && btnListAccounts.getActionListeners().length == 0 ) {
