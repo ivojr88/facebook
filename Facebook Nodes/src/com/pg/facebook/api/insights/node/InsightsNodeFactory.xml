@@ -10,7 +10,7 @@
         <intro>
         	Retrieves insight metrics from Facebook Graph API.  Available metrics are listed at:
         	<a href="https://developers.facebook.com/docs/graph-api/reference/v2.2/insights/">https://developers.facebook.com/docs/graph-api/reference/v2.2/insights/</a>.
-        	Metrics are grouped into like metrics by dimensions (i.e. "by gender and age").  Node supports up to 4 groups of metrics.
+        	
         </intro>
         
         <option name="Metrics">Comma-separated list of Facebook metrics.  See above reference link for options.</option>
