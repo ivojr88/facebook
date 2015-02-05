@@ -114,6 +114,8 @@ public class SelectAccountNodeDialog extends StandardNodeDialogPane {
 		
 		txtAccountId.setText(config.getAccountId());
 		txtAccountAccessToken.setText(config.getAccessToken());
+		
+		accounts.removeAllElements();
 		if ( config.getAccountName() != null && !config.getAccountName().isEmpty() && accounts.getSize() == 0)
 			accounts.addElement(config.getAccountName());
 		else {
