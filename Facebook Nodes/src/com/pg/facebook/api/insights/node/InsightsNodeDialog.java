@@ -158,6 +158,9 @@ public class InsightsNodeDialog extends StandardNodeDialogPane {
 		new MetricGroupActionListener().actionPerformed(null);
 		new MetricActionListener().actionPerformed(null);
 		
+		if ( useStartDate != null ) startDate.setEnabled(useStartDate.isSelected());
+		if ( useEndDate != null ) endDate.setEnabled(useEndDate.isSelected());
+		
 	}
 	
 	private class MetricGroupActionListener implements ActionListener {
