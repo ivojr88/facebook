@@ -15,18 +15,16 @@
         
         <option name="Metrics">Comma-separated list of Facebook metrics.  See above reference link for options.</option>
         <option name="Period">Time span for metrics to cover when aggregated.  Some metrics are not available for all time periods (e.g. page_fans is only available for Lifetime).  Review insights reference link above for valid periods.  When in doubt choose "All".</option>
-        <option name="Since">Starting date (PST) for metric collection.  Remove this constraint with the "Use Since Date" checkbox.</option>
-        <option name="Until">Ending date (PST) for metric collection.  Remove this constraint with the "Use Until Date" checkbox.</option>
+        <option name="Since">Starting date (PST) for metric collection.  Remove this constraint with the associated checkbox.</option>
+        <option name="Until">Ending date (PST) for metric collection.  Remove this constraint with the associated checkbox.</option>
         
     </fullDescription>
     
     <ports>
         <inPort index="0" name="Facebook Connection">Authenticated connection to Facebook API with selected Object ID</inPort>
         <!-- possibly more input ports here-->
-        <outPort index="0" name="Metric Table 1">Table containing first group of metrics</outPort>
-        <outPort index="1" name="Metric Table 2">Table containing second group of metrics</outPort>
-        <outPort index="2" name="Metric Table 3">Table containing third group of metrics</outPort>
-        <outPort index="3" name="Metric Table 4">Table containing fourth group of metrics</outPort>
+        <outPort index="0" name="Query Results">Table containing first group of metrics</outPort>
+        
         <!-- possibly more output ports here-->
     </ports>    
     
