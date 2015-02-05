@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -56,7 +54,7 @@ public class InsightsNodeModel extends NodeModel {
     protected InsightsNodeModel() {
     	super(
     		new PortType[] {FacebookApiConnectorPortObject.TYPE},
-    		new PortType[] {BufferedDataTable.TYPE,BufferedDataTable.TYPE_OPTIONAL,BufferedDataTable.TYPE_OPTIONAL,BufferedDataTable.TYPE_OPTIONAL }
+    		new PortType[] {BufferedDataTable.TYPE }
     	);
     	
     }
@@ -69,67 +67,52 @@ public class InsightsNodeModel extends NodeModel {
     		throw new Exception("Invalid input class type");
     	}
     	
+    	String[] metrics = config.getMetrics();
     	FacebookApiConnectorPortObject portObject = (FacebookApiConnectorPortObject)inObjects[0];
     	FacebookApiClient client = portObject.getFacebookApiClient();
-    	
-    	HashMap<String, Set<String>> metricGroups = config.getMetricGroups();
-    	BufferedDataTable[] tables = new BufferedDataTable[] {EMPTY_TABLE(exec),EMPTY_TABLE(exec),EMPTY_TABLE(exec),EMPTY_TABLE(exec) };
     	
     	String startDate = config.getUseStartDate() ? config.getAdjustedStartDate() : "";
     	String endDate = config.getUseEndDate() ? config.getAdjustedEndDate() : "";
     	
-    	int tableCount = 0;
-    	for ( String group : metricGroups.keySet() ) {
-    		
-    		Set<String> metrics = metricGroups.get(group);
-    		DataTableSpec tableSpec = createSpec();
-    		BufferedDataContainer outContainer = exec.createDataContainer(tableSpec);
-    		
-    		exec.checkCanceled();
-    		
-    		Connection<Insight> connection = client.getInsights(config.getFacebookPeriodIdentifier(), metrics.toArray(new String[]{}), startDate, endDate);
-    		List<Insight> insights = connection.getData();
-    		
-    		int i = 0;
-    		for ( Insight insight : insights ) {
-    			List<FacebookInsight> facebookInsights = null;
-    			try {
-    				facebookInsights = FacebookInsightFactory.getFacebookInsights(insight);
-    			} catch ( Exception exc ) {
-    				LOGGER.error("Error from FacebookInsightsFactory: " + exc.getMessage());
-    				
-    				throw exc; 
-    			}
-    			for ( FacebookInsight facebookInsight: facebookInsights ) {
-    				
-    				LOGGER.debug(facebookInsight.toString());
-    				
-    				List<DataCell> cells = new ArrayList<DataCell>(tableSpec.getNumColumns());
-    				cells.add(new StringCell(portObject.getFacebookApiClient().getImpersonationAccountId()));
-    	        	cells.add(new DateAndTimeCell(facebookInsight.getDateAsAdjustedDate().getTime(), true, false, false));
-    	        	cells.add(new StringCell(facebookInsight.getPeriod()));
-    	        	cells.add(new StringCell(facebookInsight.getMetricname()));
-    	        	cells.add(new StringCell(facebookInsight.getDimensionname()));
-    	        	cells.add(new DoubleCell(facebookInsight.getValue()));
-    	        	cells.add(new StringCell(facebookInsight.getDate()));
-    	        	
-    	        	outContainer.addRowToTable(new DefaultRow("Row" + i++, cells));
-    			}
-    		}
-    		
-    		outContainer.close();
-    		tables[tableCount++] = outContainer.getTable();    	
-    	}
+    	exec.setMessage("Querying Facebook API");
+    	exec.checkCanceled();
     	
-        return tables;
-    	
-    }
-
-    private static final BufferedDataTable EMPTY_TABLE(ExecutionContext exec) {
-    	DataTableSpec spec = new DataTableSpec();
-    	BufferedDataContainer container = exec.createDataContainer(spec);
-    	container.close();
-    	return container.getTable();
+    	DataTableSpec tableSpec = createSpec();
+		BufferedDataContainer outContainer = exec.createDataContainer(tableSpec);
+		
+		Connection<Insight> connection = client.getInsights(config.getFacebookPeriodIdentifier(), metrics, startDate, endDate);
+		List<Insight> insights = connection.getData();
+		
+		for ( Insight insight : insights ) {
+			List<FacebookInsight> facebookInsights = null;
+			try {
+				facebookInsights = FacebookInsightFactory.getFacebookInsights(insight);
+			} catch ( Exception exc ) {
+				LOGGER.error("Error from FacebookInsightsFactory: " + exc.getMessage());
+				
+				throw exc; 
+			}
+			
+			int i = 0;
+			for ( FacebookInsight facebookInsight: facebookInsights ) {
+				
+				LOGGER.debug(facebookInsight.toString());
+				
+				List<DataCell> cells = new ArrayList<DataCell>(tableSpec.getNumColumns());
+				cells.add(new StringCell(portObject.getFacebookApiClient().getImpersonationAccountId()));
+	        	cells.add(new DateAndTimeCell(facebookInsight.getDateAsAdjustedDate().getTime(), true, false, false));
+	        	cells.add(new StringCell(facebookInsight.getPeriod()));
+	        	cells.add(new StringCell(facebookInsight.getMetricname()));
+	        	cells.add(new StringCell(facebookInsight.getDimensionname()));
+	        	cells.add(new DoubleCell(facebookInsight.getValue()));
+	        	cells.add(new StringCell(facebookInsight.getDate()));
+	        	
+	        	outContainer.addRowToTable(new DefaultRow("Row" + i++, cells));
+			}
+		}
+		
+		outContainer.close();
+		return new BufferedDataTable[] { outContainer.getTable() };
     }
     
     private DataTableSpec createSpec( ) {
@@ -153,13 +136,13 @@ public class InsightsNodeModel extends NodeModel {
      */
     @Override
     protected void reset() {
-        // TODO: generated method stub
+        
     }
 
     @Override
     protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
     		throws InvalidSettingsException {
-    	return null;
+    	return new PortObjectSpec[] { createSpec() };
     }
     
     /**
@@ -191,11 +174,7 @@ public class InsightsNodeModel extends NodeModel {
             throws InvalidSettingsException {
         config = new FacebookInsightsConfiguration();
         config.load(settings);
-        
-        if ( config.getMetricGroups().size() > 4 ) {
-        	throw new InvalidSettingsException("Max number of metric types is 4");
-        }
-        
+       
         if ( config.getUseStartDate() && config.getUseEndDate() ) {
         	try {
             	SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");

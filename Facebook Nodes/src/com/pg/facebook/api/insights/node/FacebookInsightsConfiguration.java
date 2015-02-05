@@ -153,37 +153,6 @@ public class FacebookInsightsConfiguration {
 		return METRICS;
 	}
 
-	public HashMap<String, Set<String>> getMetricGroups() {
-		HashMap<String, Set<String>> groups = new HashMap<String, Set<String>>();
-
-		for (String metric : getMetrics()) {
-			String stem = metricStem(metric);
-
-			Set<String> metrics = groups.get(stem);
-			if (metrics == null)
-				metrics = new HashSet<String>();
-			metrics.add(metric);
-			groups.put(stem, metrics);
-		}
-
-		return groups;
-	}
-
-	private String metricStem(String metric) {
-		if (metric == null || metric.isEmpty())
-			return "";
-
-		metric = metric.replaceAll("_unique", "");
-
-		int index = metric.indexOf("by");
-		if (-1 == index) {
-			return "flat";
-		}
-
-		return metric.substring(index, metric.length());
-
-	}
-
 	public static HashMap<String, String> PERIOD_MAP() {
 		if (PERIODS != null)
 			return PERIODS;
