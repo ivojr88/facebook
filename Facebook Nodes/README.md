@@ -2,10 +2,20 @@ P&G Facebook Nodes
 ====
 Enables connectivity to Facebook Page and Post Level Insights API
 
+ * Facebook API Connector - provides oAuth credentialed connection to Facebook Insights API
+ * Facebook Select Account - specifies a specific accessible Facebook Account for use
+ * Facebook Select Post - specifies a specific accessible Facebook Post for use
+ * Facebook List Accounts - lists all available Accounts
+ * Facebook List Posts - lists available Posts for an Account
+ * Facebook List Comments - lists available Comments for a Post
+
 KNIME
 ====
 More information about KNIME can be found here (http://www.knime.org)
 
+RESTFB
+===
+Uses RestFB Facebook api client libraries (http://restfb.com/)
 
 Installation and Development
 ====
