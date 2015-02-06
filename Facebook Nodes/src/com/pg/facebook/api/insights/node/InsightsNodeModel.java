@@ -83,6 +83,7 @@ public class InsightsNodeModel extends NodeModel {
 		Connection<Insight> connection = client.getInsights(config.getFacebookPeriodIdentifier(), metrics, startDate, endDate);
 		List<Insight> insights = connection.getData();
 		
+		int i = 0;
 		for ( Insight insight : insights ) {
 			List<FacebookInsight> facebookInsights = null;
 			try {
@@ -93,7 +94,6 @@ public class InsightsNodeModel extends NodeModel {
 				throw exc; 
 			}
 			
-			int i = 0;
 			for ( FacebookInsight facebookInsight: facebookInsights ) {
 				
 				LOGGER.debug(facebookInsight.toString());
