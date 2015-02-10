@@ -11,12 +11,13 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import com.pg.facebook.api.connector.data.FacebookApiConnectionPortObjectSpec;
 import com.pg.facebook.api.connector.data.FacebookApiConnectorPortObject;
+import com.pg.knime.node.ITracker;
+import com.pg.knime.node.StandardTrackedNodeModel;
 
 
 /**
@@ -25,7 +26,7 @@ import com.pg.facebook.api.connector.data.FacebookApiConnectorPortObject;
  *
  * @author P&G, eBusiness Analytics
  */
-public class FacebookConnectorNodeModel extends NodeModel {
+public class FacebookConnectorNodeModel extends StandardTrackedNodeModel {
     
 	private FacebookConnectorConfiguration config;
         
@@ -33,7 +34,6 @@ public class FacebookConnectorNodeModel extends NodeModel {
      * Constructor for the node model.
      */
     protected FacebookConnectorNodeModel() {
-    
     	super(new PortType[0], new PortType[]{FacebookApiConnectorPortObject.TYPE});
     }
 
@@ -45,6 +45,7 @@ public class FacebookConnectorNodeModel extends NodeModel {
     		throw new InvalidSettingsException("Please configure node before execution");
     	}
     	
+    	track(ITracker.EXECUTE);
     	return new PortObject[] { new FacebookApiConnectorPortObject(new FacebookApiConnectionPortObjectSpec(config)) };
     	
     }

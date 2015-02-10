@@ -14,7 +14,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import com.pg.knime.node.StandardNodeDialogPane;
+import com.pg.knime.node.StandardTrackedNodeDialogPane;
 
 /**
  * <code>NodeDialog</code> for the "FacebookConnector" Node.
@@ -27,7 +27,7 @@ import com.pg.knime.node.StandardNodeDialogPane;
  * 
  * @author P&G, eBusiness Analytics
  */
-public class FacebookConnectorNodeDialog extends StandardNodeDialogPane {
+public class FacebookConnectorNodeDialog extends StandardTrackedNodeDialogPane {
 
 	private FacebookConnectorConfiguration configuration = new FacebookConnectorConfiguration();
 	
