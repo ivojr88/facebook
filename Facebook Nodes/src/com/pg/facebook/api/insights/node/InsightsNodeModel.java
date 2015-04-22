@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -67,9 +68,14 @@ public class InsightsNodeModel extends NodeModel {
     		throw new Exception("Invalid input class type");
     	}
     	
+    	
     	String[] metrics = config.getMetrics();
     	FacebookApiConnectorPortObject portObject = (FacebookApiConnectorPortObject)inObjects[0];
     	FacebookApiClient client = portObject.getFacebookApiClient();
+    	
+    	if ( StringUtils.isEmpty(client.getImpersonationAccessToken()) || StringUtils.isEmpty(client.getImpersonationAccountId())  ) {
+    		throw new InvalidSettingsException("Please use Account Connector node before Insight Query node");
+    	}
     	
     	String startDate = config.getUseStartDate() ? config.getAdjustedStartDate() : "";
     	String endDate = config.getUseEndDate() ? config.getAdjustedEndDate() : "";
