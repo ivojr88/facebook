@@ -29,11 +29,12 @@ public class FacebookApiClient {
 	private static NodeLogger LOGGER = NodeLogger.getLogger(FacebookApiClient.class);
 	
 	public FacebookApiClient() {
-		client = new DefaultFacebookClient();
+		client = new DefaultFacebookClient(Version.VERSION_2_1);
 	}
 	
 	public FacebookApiClient(String accessToken, String appSecret) {
 		client = new DefaultFacebookClient(accessToken, appSecret, Version.VERSION_2_1);
+		
 		tokenConfigured = true;
 	}
 	
@@ -59,12 +60,21 @@ public class FacebookApiClient {
 
 	public List<Account> getAccounts() {
 		Connection<Account> accounts = getConnection( client, "me/accounts", Account.class );
-		return accounts.getData();
+		
+		List<Account> accountList = new ArrayList<Account>();
+		
+		// Get all results
+		for ( List<Account> accountConnection : accounts ) {
+			for (Account account : accountConnection ) 
+				accountList.add(account);
+		}
+		
+		return accountList;
 	}
 	
 	public Connection<Post> getPosts() {
 		
-		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken());
+		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken(),Version.VERSION_2_1);
 		
 		List<Parameter> params = new ArrayList<Parameter>();
 		params.add(Parameter.with("fields", "id,created_time,message,from,link,type,application,shares,likes.limit(1).summary(true),comments.limit(1).summary(true)"));
@@ -78,7 +88,7 @@ public class FacebookApiClient {
 	
 	public Connection<Comment> getComments() {
 		
-		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken());
+		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken(),Version.VERSION_2_1);
 		
 		Connection<Comment> comments = getConnection( impersonationClient, getImpersonationAccountId() + "/comments", Comment.class );
 		
@@ -87,7 +97,7 @@ public class FacebookApiClient {
 	
 	public Connection<Insight> getInsights(String period, String[] metrics, String startDate, String endDate ) {
 		
-		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken());
+		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken(),Version.VERSION_2_1);
 		
 		List<Parameter> params = new ArrayList<Parameter>();
 		params.add(Parameter.with("metric", StringUtils.join(metrics,",")));
@@ -102,8 +112,6 @@ public class FacebookApiClient {
 									getImpersonationAccountId() +"/insights", 
 									Insight.class, 
 									parameters );
-		
-		
 		
 		
 	}
