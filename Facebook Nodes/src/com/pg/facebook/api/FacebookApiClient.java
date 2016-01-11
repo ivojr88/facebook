@@ -29,7 +29,7 @@ public class FacebookApiClient {
 	private static NodeLogger LOGGER = NodeLogger.getLogger(FacebookApiClient.class);
 	
 	public FacebookApiClient() {
-		client = new DefaultFacebookClient(Version.VERSION_2_1);
+		client = new DefaultFacebookClient(Version.VERSION_2_5);
 	}
 	
 	public FacebookApiClient(String accessToken, String appSecret) {
@@ -81,7 +81,7 @@ public class FacebookApiClient {
 		Parameter[] parameters = params.toArray(new Parameter[0]);
 		
 		
-		Connection<Post> posts = getConnection( impersonationClient, "me/feed", Post.class, parameters );
+		Connection<Post> posts = getConnection( impersonationClient, "me/posts", Post.class, parameters );
 		
 		return posts;
 	}
@@ -97,7 +97,7 @@ public class FacebookApiClient {
 	
 	public Connection<Insight> getInsights(String period, String[] metrics, String startDate, String endDate ) {
 		
-		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken(),Version.VERSION_2_1);
+		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken(),Version.VERSION_2_5);
 		
 		List<Parameter> params = new ArrayList<Parameter>();
 		params.add(Parameter.with("metric", StringUtils.join(metrics,",")));
