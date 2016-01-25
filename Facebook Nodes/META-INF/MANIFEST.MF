@@ -22,5 +22,5 @@ Export-Package: com.pg.facebook.api.connector.node,
  com.pg.facebook.api.listposts.node,
  com.pg.facebook.api.selectaccount.node,
  com.pg.facebook.api.selectpost.node
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 

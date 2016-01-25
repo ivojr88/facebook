@@ -24,5 +24,15 @@
 	  	</category>
 	  
 	</extension>	
+	
+	  <extension point="org.knime.core.PortType">
+	   	<portType
+	          name="Facebook API Connection PortType" 
+	          objectClass="com.pg.facebook.api.connector.data.FacebookApiConnectorPortObject"
+	          objectSerializer="com.pg.facebook.api.connector.data.FacebookApiConnectorPortObject$Serializer"
+	          specClass="com.pg.facebook.api.connector.data.FacebookApiConnectionPortObjectSpec"
+	          specSerializer="com.pg.facebook.api.connector.data.FacebookApiConnectionPortObjectSpec$Serializer">
+	   	</portType>
+	 </extension>
 	  
 </plugin>

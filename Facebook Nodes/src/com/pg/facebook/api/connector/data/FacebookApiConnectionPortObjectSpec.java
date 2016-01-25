@@ -11,6 +11,8 @@ import com.pg.facebook.api.selectaccount.node.FacebookSelectAccountConfiguration
 
 public class FacebookApiConnectionPortObjectSpec extends AbstractSimplePortObjectSpec {
 
+	public static final class Serializer extends AbstractSimplePortObjectSpecSerializer<FacebookApiConnectionPortObjectSpec> {}
+	
 	private FacebookApiClient client = null;
 	
 	private FacebookConnectorConfiguration connectionConfig;
