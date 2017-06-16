@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: P&G Facebook Nodes for KNIME Workbench
 Bundle-SymbolicName: com.pg.facebook;singleton:=true
-Bundle-Version: 1.0.8
+Bundle-Version: 1.0.9
 Bundle-ClassPath: facebookconnector.jar,
  lib/opencsv-1.8.jar,
  lib/restfb-1.18.1.jar
