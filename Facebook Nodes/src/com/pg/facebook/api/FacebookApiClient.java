@@ -16,6 +16,8 @@ import com.restfb.types.Account;
 import com.restfb.types.Comment;
 import com.restfb.types.Insight;
 import com.restfb.types.Post;
+import com.restfb.types.ads.AdAccount;
+import com.restfb.types.ads.CustomAudience;
 
 public class FacebookApiClient {
 
@@ -33,7 +35,7 @@ public class FacebookApiClient {
 	}
 	
 	public FacebookApiClient(String accessToken, String appSecret) {
-		client = new DefaultFacebookClient(accessToken, appSecret, Version.VERSION_2_1);
+		client = new DefaultFacebookClient(accessToken, appSecret, Version.VERSION_2_9);
 		
 		tokenConfigured = true;
 	}
@@ -74,7 +76,7 @@ public class FacebookApiClient {
 	
 	public Connection<Post> getPosts() {
 		
-		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken(),Version.VERSION_2_1);
+		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken(),Version.VERSION_2_9);
 		
 		List<Parameter> params = new ArrayList<Parameter>();
 		params.add(Parameter.with("fields", "id,created_time,message,from,link,type,application,shares,likes.limit(1).summary(true),comments.limit(1).summary(true)"));
@@ -88,7 +90,7 @@ public class FacebookApiClient {
 	
 	public Connection<Comment> getComments() {
 		
-		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken(),Version.VERSION_2_1);
+		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken(),Version.VERSION_2_9);
 		
 		Connection<Comment> comments = getConnection( impersonationClient, getImpersonationAccountId() + "/comments", Comment.class );
 		
@@ -97,7 +99,7 @@ public class FacebookApiClient {
 	
 	public Connection<Insight> getInsights(String period, String[] metrics, String startDate, String endDate ) {
 		
-		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken(),Version.VERSION_2_5);
+		DefaultFacebookClient impersonationClient = new DefaultFacebookClient(getImpersonationAccessToken(),Version.VERSION_2_9);
 		
 		List<Parameter> params = new ArrayList<Parameter>();
 		params.add(Parameter.with("metric", StringUtils.join(metrics,",")));
@@ -115,6 +117,30 @@ public class FacebookApiClient {
 		
 		
 	}
+	
+	public Connection<AdAccount> getAdAccounts ()  {
+		
+		List<Parameter> params = new ArrayList<Parameter>();
+		params.add(Parameter.with("fields", "account_status,amount_spent"));
+		Parameter[] parameters = params.toArray(new Parameter[0]);
+		
+		Connection<AdAccount> accounts = getConnection(client, "me/adaccounts", AdAccount.class, parameters);
+		
+		return accounts;
+		
+	}
+	
+	public Connection<CustomAudience> getCustomAudiences (String accountId) {
+		
+		List<Parameter> params = new ArrayList<Parameter>();
+		params.add(Parameter.with("fields", "name,delivery_status,description,approximate_count"));
+		Parameter[] parameters = params.toArray(new Parameter[0]);
+	
+		Connection<CustomAudience> audiences = getConnection(client, accountId + "/customaudiences", CustomAudience.class, parameters);
+		
+		return audiences;
+	}
+	
 	
 	
 	private <T> Connection<T> getConnection(FacebookClient client, String connection, Class<T> clz, Parameter... parameters ) {

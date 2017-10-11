@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?eclipse version="3.0"?>
-<plugin>
+<?eclipse version="3.0"?><plugin>
    
 	<extension point="org.knime.workbench.repository.nodes">
 		<node category-path="/pg/facebook" factory-class="com.pg.facebook.api.connector.node.FacebookConnectorNodeFactory" id="com.pg.facebook.api.connector.node.FacebookConnectorNodeFactory"/>
@@ -10,28 +9,20 @@
 		<node category-path="/pg/facebook" factory-class="com.pg.facebook.api.listposts.node.ListPostsNodeFactory" id="com.pg.facebook.api.listposts.node.ListPostsNodeFactory"/>
 		<node category-path="/pg/facebook" factory-class="com.pg.facebook.api.selectpost.node.SelectPostNodeFactory" id="com.pg.facebook.api.selectpost.node.SelectPostNodeFactory"/>
 		<node category-path="/pg/facebook" factory-class="com.pg.facebook.api.listcomments.node.ListCommentsNodeFactory" id="com.pg.facebook.api.listcomments.node.ListCommentsNodeFactory"/>
-	</extension>
+	<node category-path="/" factory-class="com.pg.facebook.api.listadaccounts.ListAdAccountsNodeFactory" id="com.pg.facebook.api.listadaccounts.ListAdAccountsNodeFactory"/>
+<node category-path="/" factory-class="com.pg.facebook.api.listcustomaudiences.ListCustomAudiencesNodeFactory" id="com.pg.facebook.api.listcustomaudiences.ListCustomAudiencesNodeFactory"/>
+</extension>
    
 	 <extension point="org.knime.workbench.repository.categories">
 	
 	  	<!-- Facebook -->
-	  	<category
-	    	icon="icons/facebook-icon.png"
-	    	level-id="facebook"
-	    	locked="false"
-	    	name="Facebook"
-	    	path="/pg/">
+	  	<category icon="icons/facebook-icon.png" level-id="facebook" locked="false" name="Facebook" path="/pg/">
 	  	</category>
 	  
 	</extension>	
 	
 	  <extension point="org.knime.core.PortType">
-	   	<portType
-	          name="Facebook API Connection PortType" 
-	          objectClass="com.pg.facebook.api.connector.data.FacebookApiConnectorPortObject"
-	          objectSerializer="com.pg.facebook.api.connector.data.FacebookApiConnectorPortObject$Serializer"
-	          specClass="com.pg.facebook.api.connector.data.FacebookApiConnectionPortObjectSpec"
-	          specSerializer="com.pg.facebook.api.connector.data.FacebookApiConnectionPortObjectSpec$Serializer">
+	   	<portType name="Facebook API Connection PortType" objectClass="com.pg.facebook.api.connector.data.FacebookApiConnectorPortObject" objectSerializer="com.pg.facebook.api.connector.data.FacebookApiConnectorPortObject$Serializer" specClass="com.pg.facebook.api.connector.data.FacebookApiConnectionPortObjectSpec" specSerializer="com.pg.facebook.api.connector.data.FacebookApiConnectionPortObjectSpec$Serializer">
 	   	</portType>
 	 </extension>
 	  
