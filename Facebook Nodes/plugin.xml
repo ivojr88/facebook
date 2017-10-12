@@ -11,6 +11,7 @@
 		<node category-path="/pg/facebook" factory-class="com.pg.facebook.api.listcomments.node.ListCommentsNodeFactory" id="com.pg.facebook.api.listcomments.node.ListCommentsNodeFactory"/>
 	<node category-path="/" factory-class="com.pg.facebook.api.listadaccounts.ListAdAccountsNodeFactory" id="com.pg.facebook.api.listadaccounts.ListAdAccountsNodeFactory"/>
 <node category-path="/" factory-class="com.pg.facebook.api.listcustomaudiences.ListCustomAudiencesNodeFactory" id="com.pg.facebook.api.listcustomaudiences.ListCustomAudiencesNodeFactory"/>
+<node category-path="/" factory-class="com.pg.facebook.api.createcustomaudience.CreateCustomAudienceNodeFactory" id="com.pg.facebook.api.createcustomaudience.CreateCustomAudienceNodeFactory"/>
 </extension>
    
 	 <extension point="org.knime.workbench.repository.categories">

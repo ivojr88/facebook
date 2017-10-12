@@ -1,11 +1,18 @@
 package com.pg.facebook.api;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.knime.core.node.NodeLogger;
 
+import com.facebook.ads.sdk.APIContext;
+import com.facebook.ads.sdk.APIException;
+import com.facebook.ads.sdk.CustomAudience.EnumSubtype;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.restfb.Connection;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
@@ -22,6 +29,8 @@ import com.restfb.types.ads.CustomAudience;
 public class FacebookApiClient {
 
 	private FacebookClient client;
+	private APIContext apiContext;
+	
 	private String impersonationAccountId;
 	private String impersonationAccessToken;
 	
@@ -31,11 +40,12 @@ public class FacebookApiClient {
 	private static NodeLogger LOGGER = NodeLogger.getLogger(FacebookApiClient.class);
 	
 	public FacebookApiClient() {
-		client = new DefaultFacebookClient(Version.VERSION_2_5);
+		client = new DefaultFacebookClient(Version.VERSION_2_9);
 	}
 	
 	public FacebookApiClient(String accessToken, String appSecret) {
 		client = new DefaultFacebookClient(accessToken, appSecret, Version.VERSION_2_9);
+		apiContext = new APIContext(accessToken, appSecret).enableDebug(false);
 		
 		tokenConfigured = true;
 	}
@@ -121,7 +131,7 @@ public class FacebookApiClient {
 	public Connection<AdAccount> getAdAccounts ()  {
 		
 		List<Parameter> params = new ArrayList<Parameter>();
-		params.add(Parameter.with("fields", "account_status,amount_spent"));
+		params.add(Parameter.with("fields", "account_status,amount_spent,account_id"));
 		Parameter[] parameters = params.toArray(new Parameter[0]);
 		
 		Connection<AdAccount> accounts = getConnection(client, "me/adaccounts", AdAccount.class, parameters);
@@ -139,6 +149,43 @@ public class FacebookApiClient {
 		Connection<CustomAudience> audiences = getConnection(client, accountId + "/customaudiences", CustomAudience.class, parameters);
 		
 		return audiences;
+	}
+	
+	public String createCustomAudience ( String accountId, String name, List<String> schema, List<List<String>> people ) throws APIException {
+		
+		com.facebook.ads.sdk.AdAccount account = new com.facebook.ads.sdk.AdAccount(accountId, apiContext);
+		com.facebook.ads.sdk.CustomAudience audience = account.createCustomAudience()
+														.setName(name)
+														.setDescription("Created via KNIME " + new Date())
+														.setSubtype(EnumSubtype.VALUE_CUSTOM)
+														.execute();
+		
+		// Build Schema
+	
+		JsonArray schema_array = new JsonArray();
+		for ( String schema_item : schema ) {
+			schema_array.add(new JsonPrimitive(schema_item));
+		}
+		
+		// Add People
+		JsonArray people_array = new JsonArray();
+		for (List<String> person_values : people ) {
+			
+			JsonArray person = new JsonArray();
+			for ( String value : person_values ) {
+				person.add(new JsonPrimitive(value));
+			}
+			people_array.add(person);
+		}
+		
+		JsonObject payload = new JsonObject();
+		payload.add("schema", schema_array);
+		payload.add("data", people_array);
+		
+		audience.createUser().setPayload(payload.toString()).execute();
+		
+		return audience.getId();
+		
 	}
 	
 	

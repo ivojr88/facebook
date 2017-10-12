@@ -5,7 +5,9 @@ Bundle-SymbolicName: com.pg.facebook;singleton:=true
 Bundle-Version: 1.0.9
 Bundle-ClassPath: facebookconnector.jar,
  lib/opencsv-1.8.jar,
- lib/restfb-1.46.0.jar
+ lib/restfb-1.46.0.jar,
+ lib/facebook-java-ads-sdk-2.9.0.jar,
+ lib/gson-2.5.jar
 Bundle-Vendor: Procter & Gamble, eBusiness Analytics
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
