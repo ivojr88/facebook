@@ -153,6 +153,7 @@ public class FacebookApiClient {
 	
 	public String createCustomAudience ( String accountId, String name, List<String> schema, List<List<String>> people ) throws APIException {
 		
+		// TODO: Add Rate Limit Exception checking
 		com.facebook.ads.sdk.AdAccount account = new com.facebook.ads.sdk.AdAccount(accountId, apiContext);
 		com.facebook.ads.sdk.CustomAudience audience = account.createCustomAudience()
 														.setName(name)
