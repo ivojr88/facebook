@@ -17,7 +17,6 @@ import com.pg.facebook.api.FacebookApiClient;
 import com.pg.facebook.api.connector.data.FacebookApiConnectionPortObjectSpec;
 import com.pg.knime.node.SortedComboBoxModel;
 import com.pg.knime.node.StandardNodeDialogPane;
-import com.restfb.Connection;
 import com.restfb.types.ads.AdAccount;
 
 /**
