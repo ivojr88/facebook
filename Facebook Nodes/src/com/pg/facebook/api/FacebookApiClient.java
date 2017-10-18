@@ -155,12 +155,22 @@ public class FacebookApiClient {
 		
 		// TODO: Add Rate Limit Exception checking
 		com.facebook.ads.sdk.AdAccount account = new com.facebook.ads.sdk.AdAccount(accountId, apiContext);
-		com.facebook.ads.sdk.CustomAudience audience = account.createCustomAudience()
-														.setName(name)
-														.setDescription("Created via KNIME " + new Date())
-														.setSubtype(EnumSubtype.VALUE_CUSTOM)
-														.execute();
 		
+		com.facebook.ads.sdk.CustomAudience audience = null;
+		
+		// Check to see if already exists
+		for ( com.facebook.ads.sdk.CustomAudience a : account.getCustomAudiences().requestField("name").execute() ) {
+			if ( a.getFieldName().equals ( name ) ) audience = a;
+		}
+		
+		
+		if ( audience == null )
+			audience = account.createCustomAudience()
+											.setName(name)
+											.setDescription("Created via KNIME " + new Date())
+											.setSubtype(EnumSubtype.VALUE_CUSTOM)
+											.execute();
+
 		// Build Schema
 	
 		JsonArray schema_array = new JsonArray();
@@ -184,7 +194,7 @@ public class FacebookApiClient {
 		payload.add("data", people_array);
 		
 		audience.createUser().setPayload(payload.toString()).execute();
-		
+						
 		return audience.getId();
 		
 	}
