@@ -65,8 +65,13 @@ public class CreateCustomAudienceNodeModel extends NodeModel {
     	FacebookApiClient client = ((FacebookApiConnectorPortObject)inObjects[0]).getFacebookApiClient();
     	BufferedDataTable personList = (BufferedDataTable)inObjects[1];
     	
-    	// TODO: Check column names to make sure valid
     	List<String> schema = Arrays.asList(personList.getDataTableSpec().getColumnNames());
+    	for ( String s : schema ) {
+    		if ( !CreateCustomAudienceConfiguration.VALID_COL_NAMES.contains(s) ) {
+    			throw new InvalidSettingsException("Invalid column in input table.  Valid columns are: " + String.join(",", CreateCustomAudienceConfiguration.VALID_COL_NAMES) );
+    		}
+    	}
+    	
     	
     	List<List<String>> people = new ArrayList<List<String>>();
     	for ( DataRow row : personList ) {
