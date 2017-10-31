@@ -43,6 +43,8 @@ import com.pg.knime.node.StandardTrackedNodeDialogPane;
  * {@link org.knime.core.node.NodeDialogPane}.
  * 
  * @author P&G, eBusiness Analytics
+ * 
+ * Additional FB Token Creation API Details: https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow#token
  */
 public class FacebookConnectorNodeDialog extends StandardTrackedNodeDialogPane {
 

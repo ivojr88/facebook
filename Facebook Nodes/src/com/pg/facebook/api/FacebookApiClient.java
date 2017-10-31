@@ -199,6 +199,12 @@ public class FacebookApiClient {
 		
 	}
 	
+	public void deleteCustomAudience ( String audienceId ) throws APIException {
+		
+		com.facebook.ads.sdk.CustomAudience audience = new com.facebook.ads.sdk.CustomAudience(audienceId, apiContext );
+		audience.delete().execute();
+	}
+	
 	
 	
 	private <T> Connection<T> getConnection(FacebookClient client, String connection, Class<T> clz, Parameter... parameters ) {
