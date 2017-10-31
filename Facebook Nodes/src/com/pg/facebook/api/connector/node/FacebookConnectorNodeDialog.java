@@ -11,7 +11,12 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.layout.GridData;
@@ -24,6 +29,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.pg.knime.node.StandardTrackedNodeDialogPane;
 
 /**
@@ -44,6 +51,7 @@ public class FacebookConnectorNodeDialog extends StandardTrackedNodeDialogPane {
     private JTextArea txtRefreshToken = new JTextArea();
     private DefaultComboBoxModel<String> cbmApiSelection = new DefaultComboBoxModel<String>();
     private JButton btnCreateToken = new JButton("Get User Token");
+    private JButton btnExtendToken = new JButton("Extend Token Lifetime");
 	
     
     /**
@@ -61,6 +69,10 @@ public class FacebookConnectorNodeDialog extends StandardTrackedNodeDialogPane {
     	btnCreateToken.addActionListener(new ShowBrowserAction());
     	btnCreateToken.setVisible(false);
     	
+    	
+    	btnExtendToken.setVisible(false);
+    	btnExtendToken.addActionListener( new ExtendTokenAction() );
+    	
     	for (String type: configuration.getAuthTypes()) {
     		cbmApiSelection.addElement(type);
     	}
@@ -72,6 +84,7 @@ public class FacebookConnectorNodeDialog extends StandardTrackedNodeDialogPane {
     				.add("Credentials", cbxApiSelection )
     				.add("User Token", txtRefreshToken )
     				.add("", btnCreateToken )
+    				.add("", btnExtendToken )
     				.build()
     		)
     	);
@@ -84,6 +97,8 @@ public class FacebookConnectorNodeDialog extends StandardTrackedNodeDialogPane {
 			throws InvalidSettingsException {
 		
 		configuration.setAccessToken(txtRefreshToken.getText());
+		configuration.setAuthType((String)cbmApiSelection.getSelectedItem());
+		
 		configuration.save(settings);
 		
 	}
@@ -95,16 +110,18 @@ public class FacebookConnectorNodeDialog extends StandardTrackedNodeDialogPane {
 		configuration = new FacebookConnectorConfiguration();
 		configuration.load(settings);
 		
-		// Initialize
-		String selectedItem = (String)cbmApiSelection.getSelectedItem();
-		btnCreateToken.setVisible("User Specific".equals(selectedItem));
+		if ( cbmApiSelection.getSize() == 0 )
+			for ( String type : configuration.getAuthTypes() ) {
+				cbmApiSelection.addElement( type );
+			}
+		
+		String selectedItem = configuration.getAuthType();
+		cbmApiSelection.setSelectedItem(selectedItem);
+		int pos = configuration.getAuthTypePos(selectedItem);
 		
 		
-		if ( selectedItem != null && ( configuration.getAccessToken() == null || configuration.getAccessToken().isEmpty() ) ) {
-			configuration.setAccessToken(configuration.getTokenFromAuthType(selectedItem) );
-		}
-		
-		txtRefreshToken.setText(configuration.getAccessToken());
+		btnCreateToken.setVisible(FacebookConnectorConfiguration.DEFAULT_AUTH_TYPE.equals(selectedItem));
+		txtRefreshToken.setText( configuration.getTokens()[pos] );
 		
 	}
     
@@ -119,15 +136,45 @@ public class FacebookConnectorNodeDialog extends StandardTrackedNodeDialogPane {
 			/*
 			 * Get configuration value:
 			 */
-			String token = configuration.getTokenFromAuthType(selectedItem);
+			int pos = configuration.getAuthTypePos(selectedItem);
+			String token = configuration.getTokens()[pos];
+			
 			configuration.setAccessToken(token);
 			txtRefreshToken.setText(configuration.getAccessToken());
 			
 			/*
 			 * If User Specified show optional button
 			 */
-			btnCreateToken.setVisible("User Specific".equals(selectedItem));
+			btnCreateToken.setVisible(FacebookConnectorConfiguration.DEFAULT_AUTH_TYPE.equals(selectedItem));
 		}
+    	
+    }
+    
+    class ExtendTokenAction implements ActionListener {
+    	
+    	@Override
+    	public void actionPerformed(ActionEvent e) {
+    	
+    		String extensionUrl = "https://graph.facebook.com/oauth/access_token?client_id=" + configuration.getAppId() + 
+    								"&client_secret=" + configuration.getAppSecret() + 
+    								"&grant_type=fb_exchange_token" + 
+    								"&fb_exchange_token=" + txtRefreshToken.getText();
+    		
+    		HttpClient client = HttpClients.createDefault();
+    		HttpGet request = new HttpGet(extensionUrl);
+    		String body = "";
+    		try {
+    			HttpResponse response = client.execute(request);
+    			body = EntityUtils.toString(response.getEntity());
+    		} catch ( Exception exc ) {}
+    		
+    		if ( !"".equals(body) ) {
+    			JsonElement jsonBody = new JsonParser().parse(body);
+        		txtRefreshToken.setText( jsonBody.getAsJsonObject().get("access_token").getAsString() );
+        		btnExtendToken.setVisible(false);
+    		}
+    		
+    	}
     	
     }
     
@@ -135,7 +182,7 @@ public class FacebookConnectorNodeDialog extends StandardTrackedNodeDialogPane {
     	
     	@Override
     	public void actionPerformed(ActionEvent e) {
-    		
+    	
     		// Create new thread for SWT Browser instance:
     		Thread t = new Thread(new Runnable() {
 				
@@ -153,7 +200,7 @@ public class FacebookConnectorNodeDialog extends StandardTrackedNodeDialogPane {
 			    			shell.setSize(800, 600);
 			    			browser.setLayoutData(new GridData(GridData.FILL_BOTH));
 			    			browser.setSize(800, 600);
-			    			browser.setUrl("https://www.facebook.com/v2.10/dialog/oauth?client_id=1600065610276063&response_type=token&scope=ads_management&redirect_uri=https://www.pg.com/connect/login_success.html");
+			    			browser.setUrl("https://www.facebook.com/v2.10/dialog/oauth?client_id=" + configuration.getAppId() + "&response_type=token&scope=ads_management&redirect_uri=https://www.pg.com/connect/login_success.html");
 			    			shell.open();
 			    		}
 		    		});
@@ -174,6 +221,7 @@ public class FacebookConnectorNodeDialog extends StandardTrackedNodeDialogPane {
 															.orElse("");
 															
 										txtRefreshToken.setText( token );
+										btnExtendToken.setVisible(true);
 										shell.close();
 										display.dispose();
 									}

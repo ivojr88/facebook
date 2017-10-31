@@ -1,6 +1,7 @@
 package com.pg.facebook.api.connector.node;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.knime.core.node.ModelContentRO;
 import org.knime.core.node.ModelContentWO;
@@ -12,12 +13,18 @@ import com.pg.knime.secure.DefaultVault;
 public class FacebookConnectorConfiguration {
 
 	private String accessToken;
+	private String authType;
+	
 	private String[] tokens;
     private String[] authTypes;
-	
+    
+    /*
 	private static final String CFG_APP_ID = "facebook app id";
-	private static final String CFG_APP_SECRET = "facebook_app_secret";
+	private static final String CFG_APP_SECRET = "facebook app secret";
+	*/
+	
 	private static final String CFG_TOKEN = "facebook user token";
+	private static final String CFG_TYPE = "facebook auth type";
 	
 	public static final String DEFAULT_AUTH_TYPE = "User Specific";
     
@@ -54,16 +61,27 @@ public class FacebookConnectorConfiguration {
 		this.accessToken = accessToken;
 	}
 	
+	public String getAuthType() {
+		
+		if ( this.authType == null || "".equals(this.authType )) {
+			return getAuthTypes()[0];
+		}
+		
+		return this.authType;
+	}
+	
+	public void setAuthType( String authType ) {
+		this.authType = authType;
+	}
+	
 	public void save(NodeSettingsWO settings) {
-		settings.addString(CFG_APP_ID, getAppId());
-		settings.addString(CFG_APP_SECRET, getAppSecret());
 		settings.addString(CFG_TOKEN, getAccessToken());
+		settings.addString(CFG_TYPE, getAuthType() );
 	}
 	
 	public void save(ModelContentWO settings) {
-		settings.addString(CFG_APP_ID, getAppId());
-		settings.addString(CFG_APP_SECRET, getAppSecret());
 		settings.addString(CFG_TOKEN, getAccessToken());
+		settings.addString(CFG_TYPE, getAuthType());
 	}
 	
 	public String[] getAuthTypes() {
@@ -72,9 +90,19 @@ public class FacebookConnectorConfiguration {
 		for ( String t : authTypes ) {
 			types.add(t);
 		}
+		
+		// Add User-Specific selection:
 		types.add(DEFAULT_AUTH_TYPE);
 		
 		return types.toArray(new String[] {} );
+	}
+	
+	public int getAuthTypePos( String at ) {
+		for ( int i = 0; i < getAuthTypes().length; i++ ) {
+			if ( at.equals(getAuthTypes()[i]) ) return i;
+		}
+		
+		return 0;
 	}
 	
 	public String[] getTokens() {
@@ -83,36 +111,22 @@ public class FacebookConnectorConfiguration {
 		for ( String t : tokens ) {
 			types.add(t);
 		}
-		types.add("");
+		
+		// Add User-Specific token if exists:
+		if ( !Arrays.asList( tokens ).contains( getAccessToken() ) )
+			types.add(getAccessToken());
 		
 		return types.toArray(new String[] {} );
 	}
 	
-	public String getAuthTypeFromToken (String token) {
-		
-		for ( int i = 0; i < tokens.length; i++ ) {
-			if ( token.equals(tokens[i]) ) return authTypes[i];
-		}
-		
-		return DEFAULT_AUTH_TYPE;
-	}
-	
-	public String getTokenFromAuthType( String authType ) {
-		
-		for ( int i=0; i < authTypes.length; i++ ) {
-			if ( authType.equals(authTypes[i])) return tokens[i];
-		}
-		
-		return "";
-		
-	}
-	
 	public void load(NodeSettingsRO settings) {
 		this.accessToken = settings.getString(CFG_TOKEN, "");
+		this.authType = settings.getString(CFG_TYPE, "");
 	}
 
 	public void load(ModelContentRO settings) {
 		this.accessToken = settings.getString(CFG_TOKEN, "");
+		this.authType = settings.getString(CFG_TYPE, "" );
 	}	
 	
 }
