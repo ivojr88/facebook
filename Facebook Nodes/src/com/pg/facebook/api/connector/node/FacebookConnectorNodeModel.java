@@ -69,8 +69,7 @@ public class FacebookConnectorNodeModel extends StandardTrackedNodeModel {
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-
-
+    	config.save(settings);
     }
 
     /**
