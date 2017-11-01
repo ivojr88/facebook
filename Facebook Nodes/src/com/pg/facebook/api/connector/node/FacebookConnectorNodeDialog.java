@@ -139,7 +139,10 @@ public class FacebookConnectorNodeDialog extends StandardTrackedNodeDialogPane {
 			 * Get configuration value:
 			 */
 			int pos = configuration.getAuthTypePos(selectedItem);
-			String token = configuration.getTokens()[pos];
+			String token = "";
+			if ( pos >0 && pos < configuration.getTokens().length ) {
+				token = configuration.getTokens()[pos];
+			}
 			
 			configuration.setAccessToken(token);
 			txtRefreshToken.setText(configuration.getAccessToken());
