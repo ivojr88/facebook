@@ -13,6 +13,8 @@
 		<node category-path="/pg/facebook/facebook-ad" factory-class="com.pg.facebook.api.listcustomaudiences.ListCustomAudiencesNodeFactory" id="com.pg.facebook.api.listcustomaudiences.ListCustomAudiencesNodeFactory"/>
 		<node category-path="/pg/facebook/facebook-ad" factory-class="com.pg.facebook.api.createcustomaudience.CreateCustomAudienceNodeFactory" id="com.pg.facebook.api.createcustomaudience.CreateCustomAudienceNodeFactory"/>
 		<node category-path="/pg/facebook/facebook-ad" factory-class="com.pg.facebook.api.deletecustomaudience.DeleteCustomAudienceNodeFactory" id="com.pg.facebook.api.deletecustomaudience.DeleteCustomAudienceNodeFactory"/>
+		<node category-path="/pg/facebook/facebook-ad" factory-class="com.pg.facebook.api.updatecustomaudience.UpdateCustomAudienceNodeFactory" id="com.pg.facebook.api.updatecustomaudience.UpdateCustomAudienceNodeFactory"/>
+		<node category-path="/pg/facebook/facebook-ad" factory-class="com.pg.facebook.api.removefromcustomaudience.RemoveFromCustomAudienceNodeFactory" id="com.pg.facebook.api.removefromcustomaudience.RemoveFromCustomAudienceNodeFactory"/>
 </extension>
    
 	 <extension point="org.knime.workbench.repository.categories">
