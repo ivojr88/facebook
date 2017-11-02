@@ -11,6 +11,7 @@ public class CreateCustomAudienceConfiguration {
 	private String audienceName;
 	private String addAccountId;
 	
+	
 	private static String CFG_NAME = "cfg.audience.name";
 	private static String CFG_AD_ACCOUNT_ID = "cfg.ad.account.id";
 	
@@ -40,7 +41,6 @@ public class CreateCustomAudienceConfiguration {
 		
 		settings.addString(CFG_NAME, getAudienceName());
 		settings.addString(CFG_AD_ACCOUNT_ID, getAddAccountId() );
-		
 	}
 	
 }

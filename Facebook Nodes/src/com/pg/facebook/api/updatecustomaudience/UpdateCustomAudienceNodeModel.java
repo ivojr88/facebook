@@ -1,4 +1,4 @@
-package com.pg.facebook.api.createcustomaudience;
+package com.pg.facebook.api.updatecustomaudience;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +12,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -26,30 +27,36 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
+import com.facebook.ads.sdk.APIException;
 import com.pg.facebook.api.FacebookApiClient;
 import com.pg.facebook.api.connector.data.FacebookApiConnectorPortObject;
+import com.pg.facebook.api.createcustomaudience.CreateCustomAudienceConfiguration;
 
 /**
- * This is the model implementation of CreateCustomAudience.
+ * This is the model implementation of UpdateCustomAudience.
  * 
  *
- * @author P&G, DataScience
+ * @author P&G Data Science
  */
-public class CreateCustomAudienceNodeModel extends NodeModel {
+public class UpdateCustomAudienceNodeModel extends NodeModel {
     
-	protected CreateCustomAudienceConfiguration config = new CreateCustomAudienceConfiguration();
+	protected UpdateCustomAudienceConfiguration config = new UpdateCustomAudienceConfiguration();
 	
     /**
      * Constructor for the node model.
      */
-    protected CreateCustomAudienceNodeModel() {
-    
+    protected UpdateCustomAudienceNodeModel() {
     	super(
          		new PortType[] { FacebookApiConnectorPortObject.TYPE, BufferedDataTable.TYPE }, 
          		new PortType[] { BufferedDataTable.TYPE }
          );
     }
 
+    public String executeAction ( String audienceId, FacebookApiClient client, List<String> schema, List<List<String>> people ) throws APIException {
+    	client.addToCustomAudience(audienceId, schema, people);
+    	return "Added Users to Audience";
+    }
+    
     @Override
     protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
     		throws Exception {
@@ -71,7 +78,6 @@ public class CreateCustomAudienceNodeModel extends NodeModel {
     		}
     	}
     	
-    	
     	List<List<String>> people = new ArrayList<List<String>>();
     	for ( DataRow row : personList ) {
     		
@@ -82,18 +88,21 @@ public class CreateCustomAudienceNodeModel extends NodeModel {
     		people.add(cols);
     	}
     	
-    	String audienceId = client.createCustomAudience(
-    			config.getAddAccountId(), 
-    			config.getAudienceName(), 
-    			schema, 
-    			people);
+    	// For override:
+    	String status = "";
+    	try {
+    		status = executeAction ( config.getAudienceId(), client, schema, people );
+    	} catch ( Exception msg ) {
+    		status = msg.getMessage();
+    	}
     	
     	DataTableSpec outSpec = createSpec();
         BufferedDataContainer outContainer = exec.createDataContainer(outSpec);
     	List<DataCell> cells = new ArrayList<DataCell>(outSpec.getNumColumns());
-    	cells.add(new StringCell(config.getAddAccountId()));
-		cells.add(new StringCell(audienceId));
-		cells.add(new StringCell(config.getAudienceName()));
+    	cells.add(new StringCell(config.getAudienceId()));
+		cells.add(new StringCell(status));
+		cells.add(new IntCell(people.size()));
+		
 		outContainer.addRowToTable(new DefaultRow("Row" + 0, cells));
         outContainer.close();
         
@@ -130,7 +139,7 @@ public class CreateCustomAudienceNodeModel extends NodeModel {
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
         
-    	config = new CreateCustomAudienceConfiguration();
+    	config = new UpdateCustomAudienceConfiguration();
         config.load(settings);
         
     }
@@ -164,16 +173,18 @@ public class CreateCustomAudienceNodeModel extends NodeModel {
         // TODO: generated method stub
     }
     
+    
     protected DataTableSpec createSpec() {
         List<DataColumnSpec> colSpecs = new ArrayList<DataColumnSpec>(2);
         
         // Add additional columns to DataSpec
-        colSpecs.add(new DataColumnSpecCreator("Ad Account Id", StringCell.TYPE).createSpec());
         colSpecs.add(new DataColumnSpecCreator("Custom Audience Id", StringCell.TYPE).createSpec());
-        colSpecs.add(new DataColumnSpecCreator("Custom Audience Name", StringCell.TYPE).createSpec());
+        colSpecs.add(new DataColumnSpecCreator("Status", StringCell.TYPE).createSpec());
+        colSpecs.add(new DataColumnSpecCreator("User List Size", IntCell.TYPE).createSpec());
         
         return new DataTableSpec(colSpecs.toArray(new DataColumnSpec[colSpecs.size()]));
     }
-
+  
+    
+    
 }
-

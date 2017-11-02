@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 
 import com.facebook.ads.sdk.APIContext;
@@ -151,25 +152,21 @@ public class FacebookApiClient {
 		return audiences;
 	}
 	
-	public String createCustomAudience ( String accountId, String name, List<String> schema, List<List<String>> people ) throws APIException {
+	public String createCustomAudience ( String accountId, String name, List<String> schema, List<List<String>> people ) throws APIException, InvalidSettingsException {
 		
 		// TODO: Add Rate Limit Exception checking
 		com.facebook.ads.sdk.AdAccount account = new com.facebook.ads.sdk.AdAccount(accountId, apiContext);
-		
-		com.facebook.ads.sdk.CustomAudience audience = null;
-		
-		// Check to see if already exists
+		 
+		// Check to see if already exists - throw error
 		for ( com.facebook.ads.sdk.CustomAudience a : account.getCustomAudiences().requestField("name").execute() ) {
-			if ( a.getFieldName().equals ( name ) ) audience = a;
-		}
+			if ( a.getFieldName().equals ( name ) ) throw new InvalidSettingsException("Custom Audience name already exists");
+		}		
 		
-		
-		if ( audience == null )
-			audience = account.createCustomAudience()
-											.setName(name)
-											.setDescription("Created via KNIME " + new Date())
-											.setSubtype(EnumSubtype.VALUE_CUSTOM)
-											.execute();
+		com.facebook.ads.sdk.CustomAudience audience = account.createCustomAudience()
+							.setName(name)
+							.setDescription("Created via KNIME " + new Date())
+							.setSubtype(EnumSubtype.VALUE_CUSTOM)
+							.execute();
 
 		// Build Schema
 	
@@ -205,6 +202,65 @@ public class FacebookApiClient {
 		audience.delete().execute();
 	}
 	
+	public String addToCustomAudience ( String audienceId, List<String> schema, List<List<String>> people ) throws APIException {
+		
+		com.facebook.ads.sdk.CustomAudience audience = new com.facebook.ads.sdk.CustomAudience(audienceId, apiContext);
+		
+		// Build Schema
+		JsonArray schema_array = new JsonArray();
+		for ( String schema_item : schema ) {
+			schema_array.add(new JsonPrimitive(schema_item));
+		}
+		
+		// Build People Payload
+		JsonArray people_array = new JsonArray();
+		for (List<String> person_values : people ) {
+			
+			JsonArray person = new JsonArray();
+			for ( String value : person_values ) {
+				person.add(new JsonPrimitive(value));
+			}
+			people_array.add(person);
+		}
+		
+		JsonObject payload = new JsonObject();
+		payload.add("schema", schema_array);
+		payload.add("data", people_array);
+		
+		audience.createUser().setPayload(payload.toString()).execute();
+		
+		return audienceId;
+	}
+	
+	public String removeFromCustomAudience ( String audienceId, List<String> schema, List<List<String>> people ) throws APIException {
+		
+		com.facebook.ads.sdk.CustomAudience audience = new com.facebook.ads.sdk.CustomAudience(audienceId, apiContext);
+		
+		// Build Schema
+		JsonArray schema_array = new JsonArray();
+		for ( String schema_item : schema ) {
+			schema_array.add(new JsonPrimitive(schema_item));
+		}
+		
+		// Build People Payload
+		JsonArray people_array = new JsonArray();
+		for (List<String> person_values : people ) {
+			
+			JsonArray person = new JsonArray();
+			for ( String value : person_values ) {
+				person.add(new JsonPrimitive(value));
+			}
+			people_array.add(person);
+		}
+		
+		JsonObject payload = new JsonObject();
+		payload.add("schema", schema_array);
+		payload.add("data", people_array);
+		
+		audience.deleteUsers().setPayload(payload.toString()).execute();
+		
+		return audienceId;
+	}
 	
 	
 	private <T> Connection<T> getConnection(FacebookClient client, String connection, Class<T> clz, Parameter... parameters ) {
